@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
 import MainScreen from './MainScreen';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import notes from '../dummydata/data';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 const Mynotes = () => {
     const [openIndex, setOpenIndex] = useState(null);
-
+    const [notes, setNotes] = useState([])
     const toggleIndex = (index) => {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    const fetchNotes = async () => {
+        const { data } = await axios.get("/api/notes")
+        setNotes(data);
+    }
     const handleDelete = (noteId) => {
         if (window.confirm("Are you sure you want to delete this note?")) {
             // Add your delete logic here
         }
     };
+
+    useEffect(() => {
+        fetchNotes();
+    }, [])
 
     return (
         <div className="min-h-screen px-6 py-10 bg-gradient-to-br from-blue-100 to-blue-300">
