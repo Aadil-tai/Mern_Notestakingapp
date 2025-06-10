@@ -5,6 +5,8 @@ import Footer from './component/footer';
 import Home from './component/Home';
 import LandingPage from './component/landingPage';
 import Mynotes from './component/Mynotes';
+import LoginScreen from './component/LoginScreen/LoginScreen';
+import RegisterScreen from './component/RegisterScreen/RegisterScreen';
 
 const App = () => {
   return (
@@ -14,6 +16,8 @@ const App = () => {
         <Routes>
           <Route path='/mynotes' element={<Mynotes />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/signup" element={<RegisterScreen />} />
         </Routes>
       </main>
       <Footer />
