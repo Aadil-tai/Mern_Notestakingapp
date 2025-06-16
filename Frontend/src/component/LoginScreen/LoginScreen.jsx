@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MainScreen from '../MainScreen';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ErrorMesseage from '../ErrorMesseage';
+import { useDispatch, useSelector } from 'react-redux';
 
 const LoginScreen = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(null); // ✅
+    const [success, setSuccess] = useState(null);
+    const [error, setError] = useState(null);
 
-    const [error, setError] = useState(null);//for showing api
-    // // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-    // const apiBaseUrl = "http://localhost:5000";
+    const { userInfo } = useSelector(state => state.userLogin);
 
     const {
         register,
@@ -19,12 +21,15 @@ const LoginScreen = () => {
         formState: { errors },
     } = useForm();
 
+    useEffect(() => {
+        if (userInfo) navigate('/mynotes');
+    }, [userInfo, navigate]);
+
     const onSubmit = async (formData) => {
         try {
             setLoading(true);
-            // console.log('API base URL:', apiBaseUrl);
             setError(null);
-            setSuccess(null); // Clear old success
+            setSuccess(null);
 
             const config = {
                 headers: {
@@ -41,11 +46,15 @@ const LoginScreen = () => {
                 config
             );
 
-            console.log("Login success:", data);
             setSuccess("Login successful! 🎉");
+            localStorage.setItem("userInfo", JSON.stringify(data));
+            dispatch({
+                type: 'USER_LOGIN_SUCCESS',
+                payload: data
+            });
+
         } catch (error) {
-            console.error("Login failed:", error);
-            setError(error.response?.data.message || "Login failed. Please try again.")
+            setError(error.response?.data.message || "Login failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -60,9 +69,8 @@ const LoginScreen = () => {
                 >
                     <h2 className="text-2xl font-semibold text-center text-gray-800">Login</h2>
                     {success && <ErrorMesseage variant="green">{success}</ErrorMesseage>}
-
                     {error && <ErrorMesseage>{error}</ErrorMesseage>}
-                    {/* Email Field */}
+
                     <div>
                         <input
                             type="email"
@@ -75,7 +83,6 @@ const LoginScreen = () => {
                         )}
                     </div>
 
-                    {/* Password Field */}
                     <div>
                         <input
                             type="password"
@@ -94,7 +101,6 @@ const LoginScreen = () => {
                         )}
                     </div>
 
-                    {/* Submit Button */}
                     <div>
                         <input
                             type="submit"
@@ -104,7 +110,6 @@ const LoginScreen = () => {
                         />
                     </div>
 
-                    {/* Redirect to Register */}
                     <div className="text-center">
                         <p className="text-sm text-gray-600">
                             New user?{' '}

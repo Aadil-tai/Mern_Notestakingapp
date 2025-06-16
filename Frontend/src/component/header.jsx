@@ -1,113 +1,169 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../utils/userAction';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearchQuery } from '../actions/searchActions';
+import { FaUserCircle } from 'react-icons/fa';
 
 const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'My Notes', path: '/mynotes' },
-    { name: 'Login', path: '/login' },
-    { name: 'Sign Up', path: '/signup' },
+
 ];
 
 const Header = () => {
-
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { userInfo } = useSelector((state) => state.userLogin);
+    const globalSearch = useSelector((state) => state.searchQuery);
+    const [input, setInput] = useState(globalSearch || '');
 
-    const toggleMenu = () => {
-        setIsMenuOpen((prev) => !prev);
+    const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/');
     };
 
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            dispatch(setSearchQuery(input));
+        }, 400);
+        return () => clearTimeout(delay);
+    }, [input, dispatch]);
+
     return (
-        <header>
-            <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
-                <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-                    <Link to="/" className="flex items-center">
-                        <img
-                            src="https://flowbite.com/docs/images/logo.svg"
-                            className="mr-3 h-6 sm:h-9"
-                            alt="QuickNote Logo"
-                        />
-                        <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-                            Quick Note
-                        </span>
-                    </Link>
+        <header className="bg-gray-900 text-white shadow-md">
+            <nav className=" mx-auto flex items-center justify-between px-4 py-3">
+                {/* Logo + Name */}
+                <Link to="/" className="flex items-center space-x-2">
+                    <img
+                        src="https://flowbite.com/docs/images/logo.svg"
+                        className="h-8 w-8"
+                        alt="QuickNote Logo"
+                    />
+                    <span className="text-xl font-bold">Quick Note</span>
+                </Link>
 
-                    <div className="flex items-center lg:order-2">
-                        <Link
-                            to="/login"
-                            className=" hidden md:flex text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            to="/signup"
-                            className="hidden md:flex text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                        >
-                            Get started
-                        </Link>
+                {/* Search Bar */}
+                <div className="flex-1 mx-4 max-w-md hidden md:flex">
+                    {/* Search Bar */}
+                    {userInfo && (
+                        <div className="flex-1 mx-4 max-w-md hidden md:flex">
+                            <input
+                                type="text"
+                                placeholder="Search notes..."
+                                className="w-full px-4 py-2 text-gray-900 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                            />
+                        </div>
+                    )}
 
-                        <button
-                            onClick={() => {
-                                localStorage.removeItem("userInfo");
-                                navigate("/");
-                            }}
-                            className="hidden md:flex text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                        >
-                            Logout
-                        </button>
+                </div>
 
-
-                        <button
-                            onClick={toggleMenu}
-                            type="button"
-                            className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                            aria-controls="mobile-menu"
-                            aria-expanded={isMenuOpen}
-                        >
-                            <span className="sr-only">Open main menu</span>
-                            {isMenuOpen ? (
-                                // Close Icon
-                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                            ) : (
-                                // Hamburger Icon
-                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                            )}
-                        </button>
+                {/* Right Side */}
+                <div className="flex items-center space-x-4">
+                    {/* Navigation Links */}
+                    <div className="hidden lg:flex items-center space-x-6 text-sm font-medium">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                to={link.path}
+                                className="transition-all duration-200 hover:text-blue-400"
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
                     </div>
 
-                    <div
-                        className={`${isMenuOpen ? 'flex' : 'hidden'
-                            } justify-between items-center w-full lg:flex lg:w-auto lg:order-1`}
-                        id="mobile-menu"
-                    >
-                        <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                            {navLinks.map((link, index) => (
-                                <li key={index}>
+                    {/* Auth / Profile */}
+                    {userInfo ? (
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="text-white hover:text-blue-400"
+                            >
+                                <FaUserCircle size={26} />
+                            </button>
+                            {isMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-md shadow-lg z-50 overflow-hidden">
                                     <Link
-                                        to={link.path}
-                                        className="block py-2 pr-4 pl-3 text-gray-700 rounded hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-white lg:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent"
-                                        onClick={() => setIsMenuOpen(false)} // Auto-close on click
+                                        to="/profile"
+                                        className="block px-4 py-2 text-sm hover:bg-gray-100"
+                                        onClick={() => setIsMenuOpen(false)}
                                     >
-                                        {link.name}
+                                        Profile
                                     </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                                    <button
+                                        onClick={() => {
+                                            handleLogout();
+                                            setIsMenuOpen(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            <Link
+                                to="/login"
+                                className="hidden md:inline-block px-4 py-2 text-sm bg-transparent border border-white rounded hover:bg-white hover:text-gray-900 transition-all duration-200"
+                            >
+                                Log in
+                            </Link>
+                            <Link
+                                to="/signup"
+                                className="hidden md:inline-block px-4 py-2 text-sm bg-blue-600 rounded hover:bg-blue-700 transition-all duration-200"
+                            >
+                                Sign Up
+                            </Link>
+                        </>
+                    )}
+
+                    {/* Mobile Menu Button */}
+                    <button
+                        onClick={toggleMenu}
+                        className="inline-flex lg:hidden p-2 text-white rounded hover:bg-gray-700 focus:outline-none"
+                    >
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            {isMenuOpen ? (
+                                <path
+                                    fillRule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                />
+                            ) : (
+                                <path
+                                    fillRule="evenodd"
+                                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                    clipRule="evenodd"
+                                />
+                            )}
+                        </svg>
+                    </button>
                 </div>
             </nav>
+
+            {/* Mobile Menu Dropdown */}
+            {isMenuOpen && (
+                <div className="lg:hidden bg-gray-800 text-white px-4 pb-4 space-y-2">
+                    {navLinks.map((link) => (
+                        <Link
+                            key={link.name}
+                            to={link.path}
+                            className="block py-2 border-b border-gray-700 hover:text-blue-400"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                </div>
+            )}
         </header>
     );
 };

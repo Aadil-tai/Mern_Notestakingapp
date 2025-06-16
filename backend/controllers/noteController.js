@@ -5,9 +5,20 @@ const asyncHandler = require("express-async-handler");
 
 const getNotes = asyncHandler(async (req, res) => {
 
-    const notes = await Note.find()
+    const keyword = req.query.search
+        ? {
+            $or: [
+                { title: { $regex: req.query.search, $options: 'i' } },
+                { content: { $regex: req.query.search, $options: 'i' } },
+                { category: { $regex: req.query.search, $options: 'i' } },
+            ],
+        }
+        : {};
+    const notes = await Note.find({
+        user: req.user._id,
+        ...keyword,
+    }).sort({ createdAt: -1 });
     res.json(notes);
-    // console.log()
 });
 
 

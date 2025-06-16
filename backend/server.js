@@ -1,30 +1,25 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const singleUpload = require("./singleUpload")
+const path = require('path');
+const singleUpload = require("./singleUpload");
 const multipleUploadRoute = require('./multipleUploadRoute');
-
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const noteRoutes = require("./routes/noteRoutes");
-
 const { notFound, errorHandler } = require("./Middlewares/errorMiddlewares");
-const notes = require("./Data/data");
-
-const cloudinary = require("cloudinary").v2
+const cloudinary = require("cloudinary").v2;
 
 dotenv.config();
-
+connectDB();
 
 cloudinary.config({
     cloud_name: process.env.Cloud_Name,
     api_key: process.env.Cloud_Api,
     api_secret: process.env.Cloud_Secret,
 });
-const app = express();
 
-// Connect to database
-connectDB();
+const app = express();
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -32,48 +27,38 @@ app.use(express.json());
 // CORS configuration
 app.use(
     cors({
-        origin: "http://localhost:5173", // Frontend URL
-        credentials: true,               // Allow cookies/auth headers
+        origin: "http://localhost:5173", // Adjust if your frontend is hosted elsewhere
+        credentials: true,
     })
 );
+
+// Static route for uploaded files
 app.use("/uploads", express.static("uploads"));
 
-// Handle preflight requests
-app.options("*", cors());
-
-// Sample routes
-// app.get("/api/notes", (req, res) => {
-//     res.status(200).json(notes);
-// });
-
-// app.get("/api/notes/:id", (req, res) => {
-//     const note = notes.find((n) => n._id === req.params.id);
-//     if (note) {
-//         res.json(note);
-//     } else {
-//         res.status(404).json({ message: "Note not found" });
-//     }
-// });
-
-// Routes
-
-
+// API routes
 app.use("/api/users", userRoutes);
-app.use("/api/notes", noteRoutes)
+app.use("/api/notes", noteRoutes);
+app.use("/api/single", singleUpload);
+app.use("/api/multiple", multipleUploadRoute);
 
-app.use('/api/single', singleUpload)
-app.use('/api/multiple', multipleUploadRoute);
+// ------------ Deployment ------------
+const __dirname1 = path.resolve();
 
-//to show a file on browser like 
-//http://localhost:5000/uploads/1.png
-app.use('/uploads', express.static("uploads"));
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname1, "../Frontend/dist")));
 
-// Error handling middlewares
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname1, "../Frontend", "dist", "index.html"));
+    });
+} else {
+    app.get("/", (req, res) => {
+        res.send("API is running successfully");
+    });
+}
+
+// Error Handling Middlewares (MUST be at the end)
 app.use(notFound);
 app.use(errorHandler);
-
-
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
