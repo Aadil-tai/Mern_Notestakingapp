@@ -7,10 +7,10 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "client": "npm start --prefix Frontend",
-    "dev": "concurrently \"npm start\" \"npm run client\""
-  },
+  "start": "node server.js",
+  "dev": "nodemon server.js",
+  "build": "cd ../frontend && npm install && npm run build"
+},
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.1",
