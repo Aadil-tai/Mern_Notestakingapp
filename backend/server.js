@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const { notFound, errorHandler } = require("./Middlewares/errorMiddlewares");
+const { protect } = require("./Middlewares/authMiddlewares");
 const cloudinary = require("cloudinary").v2;
 
 dotenv.config();

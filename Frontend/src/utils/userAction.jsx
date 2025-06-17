@@ -30,14 +30,23 @@ export const updateProfile = (user) => {
                 userLogin: { userInfo },
             } = getState();
 
+
+
+            const formData = new FormData();
+            formData.append("name", user.name);
+            formData.append("email", user.email);
+            if (user.password) formData.append("password", user.password);
+            if (user.pic) formData.append("avatar", user.pic); // Must match multer field
+
             const config = {
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "multipart/form-data",
                     Authorization: `Bearer ${userInfo?.token}`,
                 },
             };
 
-            const { data } = await axios.put("/api/users/profile", user, config);
+            const { data } = await axios.put("/api/users/profile", formData, config);
+            // const { data } = await axios.put("/api/users/profile", user, config);
 
             dispatch({ type: USER_UPDATE_SUCCESS, payload: data });
             dispatch({ type: USER_LOGIN_SUCCESS, payload: data });

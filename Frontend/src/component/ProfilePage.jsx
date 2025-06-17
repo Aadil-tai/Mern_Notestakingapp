@@ -62,8 +62,8 @@ const ProfilePage = () => {
             reset({
                 name: userInfo.name || '',
                 email: userInfo.email || '',
-                password: '',
-                confirmPassword: '',
+                password: userInfo.password || '',
+                confirmPassword: userInfo.password || '',
                 pic: userInfo.pic
             });
 
