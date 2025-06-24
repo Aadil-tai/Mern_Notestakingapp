@@ -3,6 +3,8 @@ import { noteCreateReducer, noteDeleteReducer, noteListReducer, noteUpdateReduce
 import { userLoginReducer } from './reducers/loginReducer';
 import { searchReducer } from './reducers/searchReducer';
 import { userUpdateReducer } from './reducers/userReducer';
+import { userRegisterReducer } from './reducers/UserReducer/RegisterReducer';
+import { otpVerifyReducer, userResendOtpReducer, userVerifyReducer } from './reducers/OtpReducer';
 
 // Combine all reducers here
 const rootReducer = combineReducers({
@@ -12,7 +14,11 @@ const rootReducer = combineReducers({
     noteUpdate: noteUpdateReducer,
     noteDelete: noteDeleteReducer,
     searchQuery: searchReducer,
-    userUpdate: userUpdateReducer
+    userUpdate: userUpdateReducer,
+    userRegister: userRegisterReducer,
+    otpVerify: otpVerifyReducer,
+    userVerify: userVerifyReducer,
+    userResendOtp: userResendOtpReducer
 });
 
 // Load initial state from localStorage

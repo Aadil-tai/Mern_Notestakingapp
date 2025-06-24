@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const adminRoutes = require("./routes/adminRoutes")
 const cors = require("cors");
 const path = require('path');
 const singleUpload = require("./singleUpload");
@@ -8,8 +9,8 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const { notFound, errorHandler } = require("./Middlewares/errorMiddlewares");
-const { protect } = require("./Middlewares/authMiddlewares");
 const cloudinary = require("cloudinary").v2;
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 connectDB();
@@ -33,11 +34,13 @@ app.use(
     })
 );
 
+app.use(cookieParser());
 // Static route for uploaded files
 app.use("/uploads", express.static("uploads"));
 
 // API routes
 app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes)
 app.use("/api/notes", noteRoutes);
 app.use("/api/single", singleUpload);
 app.use("/api/multiple", multipleUploadRoute);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './component/header';
 import LandingPage from './component/landingPage';
@@ -9,6 +8,10 @@ import CreateNote from './component/createNote';
 import NoteUpdateForm from './component/NoteUpdate';
 import Mynotes2 from './component/newdesign';
 import ProfilePage from './component/ProfilePage';
+import { ToastContainer } from 'react-toastify';
+import OTPcomponent from './component/AuthComponents/OTPcomponent';
+import ResetPassword from './component/AuthComponents/resetPassword';
+
 
 const App = () => {
   return (
@@ -17,6 +20,7 @@ const App = () => {
 
       {/* Main content grows to fill the space */}
       <main className="flex-1">
+        <ToastContainer />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginScreen />} />
@@ -26,6 +30,9 @@ const App = () => {
           <Route path="/create-note" element={<CreateNote />} />
           <Route path="/note/:id" element={<NoteUpdateForm />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/verify-account" element={<OTPcomponent />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
         </Routes>
       </main>
 

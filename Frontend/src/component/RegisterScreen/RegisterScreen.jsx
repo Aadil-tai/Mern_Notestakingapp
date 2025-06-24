@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import MainScreen from '../MainScreen';
-import ErrorMesseage from '../ErrorMesseage';
-import axios from 'axios';
+import { registerUser } from '../../utils/userAction';
 
 const RegisterScreen = () => {
     const [avatar, setAvatar] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const { loading, error, userInfo } = useSelector(state => state.userRegister);
 
     const {
         register,
@@ -18,41 +20,37 @@ const RegisterScreen = () => {
         formState: { errors },
     } = useForm();
 
+    useEffect(() => {
+        if (userInfo) {
+            toast.success("Registration successful! 🎉");
+            navigate('/verify-account', { state: { userId: userInfo._id } });
+        }
+    }, [userInfo, navigate]);
+
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
     const handleAvatarChange = (e) => {
         setAvatar(e.target.files[0]);
     };
 
-    const onSubmit = async (formData) => {
+    const onSubmit = (formData) => {
         if (formData.Password !== formData.ConfirmPassword) {
-            setError("Passwords do not match");
+            toast.error("Passwords do not match");
             return;
         }
 
-        try {
-            setError(null);
-            setLoading(true);
+        const data = new FormData();
+        data.append("name", formData.Name);
+        data.append("email", formData.Email);
+        data.append("password", formData.Password);
+        if (avatar) data.append("avatar", avatar);
 
-            const data = new FormData();
-            data.append("name", formData.Name);
-            data.append("email", formData.Email);
-            data.append("password", formData.Password);
-            if (avatar) data.append("avatar", avatar);
-
-            const config = {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            };
-
-            const { data: resData } = await axios.post("/api/users", data, config);
-
-            localStorage.setItem("userInfo", JSON.stringify(resData));
-            navigate("/login");
-        } catch (err) {
-            setError(err.response?.data?.message || "Registration failed. Please try again.");
-        } finally {
-            setLoading(false);
-        }
+        dispatch(registerUser(data));
     };
 
     return (
@@ -63,8 +61,6 @@ const RegisterScreen = () => {
                     className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6"
                 >
                     <h2 className="text-2xl font-semibold text-center text-gray-800">Register</h2>
-
-                    {error && <ErrorMesseage>{error}</ErrorMesseage>}
 
                     <div>
                         <input
@@ -112,9 +108,7 @@ const RegisterScreen = () => {
                         <input
                             type="password"
                             placeholder="Confirm Password"
-                            {...register('ConfirmPassword', {
-                                required: 'Confirm password is required',
-                            })}
+                            {...register('ConfirmPassword', { required: 'Confirm password is required' })}
                             className={`w-full px-4 py-2 rounded-lg border ${errors.ConfirmPassword ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         />
                         {errors.ConfirmPassword && (

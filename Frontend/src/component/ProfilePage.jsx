@@ -5,25 +5,25 @@ import FormInput from './FormComponents/InputField';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile } from '../utils/userAction';
+import ErrorMesseage from './ErrorMesseage';
+import { USER_UPDATE_RESET } from '../constants/userConstants';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userLogin = useSelector((state) => state.userLogin);
-    const { userInfo } = userLogin
+    const { userInfo } = userLogin;
 
     const userUpdate = useSelector((state) => state.userUpdate);
-    const { loading, error, success } = userUpdate;
-
-
+    const { loading, error, success, userInfo: updatedInfo } = userUpdate;
 
     const [isEditing, setIsEditing] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
 
     const methods = useForm({
         defaultValues: {
-            name: 'John Doe',
-            email: 'john@example.com',
+            name: '',
+            email: '',
             password: '',
             confirmPassword: '',
             profilePic: null,
@@ -33,18 +33,17 @@ const ProfilePage = () => {
     const { handleSubmit, reset, setValue, watch } = methods;
     const password = watch('password');
 
-    const onSubmit = (data) => {
-        const { name, email, password, confirmPassword, profilePic } = data;
-
-        if (password === confirmPassword) {
-            dispatch(updateProfile({ name, email, password, pic: profilePic }));
-        }
-    };
 
 
     const handleCancel = () => {
-        reset();
-        setPreviewImage(null);
+        reset({
+            name: userInfo?.name || '',
+            email: userInfo?.email || '',
+            password: '',
+            confirmPassword: '',
+            profilePic: userInfo?.pic || null,
+        });
+        setPreviewImage(userInfo?.pic || null);
         setIsEditing(false);
     };
 
@@ -55,6 +54,7 @@ const ProfilePage = () => {
             setPreviewImage(URL.createObjectURL(file));
         }
     };
+
     useEffect(() => {
         if (!userInfo) {
             navigate("/");
@@ -62,15 +62,47 @@ const ProfilePage = () => {
             reset({
                 name: userInfo.name || '',
                 email: userInfo.email || '',
-                password: userInfo.password || '',
-                confirmPassword: userInfo.password || '',
-                pic: userInfo.pic
+                password: '',
+                confirmPassword: '',
+                profilePic: userInfo.pic || null,
             });
-
-
+            setPreviewImage(userInfo.pic || null);
         }
     }, [navigate, userInfo, reset]);
 
+    useEffect(() => {
+        if (success && updatedInfo) {
+            setIsEditing(false);
+            reset({
+                name: updatedInfo.name,
+                email: updatedInfo.email,
+                password: '',
+                confirmPassword: '',
+                profilePic: updatedInfo.pic || null,
+            });
+            setPreviewImage(updatedInfo.pic || null);
+
+
+        }
+    }, [success, updatedInfo, reset, navigate]);
+
+
+    useEffect(() => {
+        if (success || error) {
+            const timer = setTimeout(() => {
+                dispatch({ type: USER_UPDATE_RESET });
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [success, error, dispatch]);
+    const onSubmit = async (data) => {
+        const { name, email, password, confirmPassword, profilePic } = data;
+
+        if (password === confirmPassword) {
+            await dispatch(updateProfile({ name, email, password, pic: profilePic }));
+            navigate("/mynotes");
+        }
+    };
     return (
         <div className="min-h-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 py-10 px-4">
             <div className="w-full max-w-6xl bg-white/60 backdrop-blur-lg border border-white/30 rounded-3xl shadow-xl p-8 md:p-12">
@@ -78,6 +110,9 @@ const ProfilePage = () => {
                     {/* Left: Profile Form */}
                     <div className="flex-1">
                         <div className="flex justify-between items-center mb-8">
+                            {error && <ErrorMesseage variant="red">{error}</ErrorMesseage>}
+                            {success && <ErrorMesseage variant="green">Profile updated successfully!</ErrorMesseage>}
+
                             <h2 className="text-3xl font-bold text-gray-800">My Profile</h2>
                             {!isEditing && (
                                 <button
@@ -138,9 +173,10 @@ const ProfilePage = () => {
                                         </button>
                                         <button
                                             type="submit"
-                                            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
+                                            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-50"
+                                            disabled={loading}
                                         >
-                                            Save
+                                            {loading ? 'Saving...' : 'Save'}
                                         </button>
                                     </div>
                                 )}
