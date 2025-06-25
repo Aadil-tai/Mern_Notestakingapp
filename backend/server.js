@@ -16,9 +16,9 @@ dotenv.config();
 connectDB();
 
 cloudinary.config({
-    cloud_name: process.env.Cloud_Name,
-    api_key: process.env.Cloud_Api,
-    api_secret: process.env.Cloud_Secret,
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API,
+    api_secret: process.env.CLOUD_SECRET,
 });
 
 const app = express();
