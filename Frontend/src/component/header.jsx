@@ -5,11 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSearchQuery } from '../actions/searchActions';
 import { FaUserCircle } from 'react-icons/fa';
 
-const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'My Notes', path: '/mynotes' },
-
-];
+const navLinks = [{ name: 'My Notes', path: '/mynotes' }];
 
 const Header = () => {
     const navigate = useNavigate();
@@ -35,7 +31,7 @@ const Header = () => {
 
     return (
         <header className="bg-gray-900 text-white shadow-md">
-            <nav className=" mx-auto flex items-center justify-between px-4 py-3">
+            <nav className="mx-auto flex items-center justify-between px-4 py-3">
                 {/* Logo + Name */}
                 <Link to="/" className="flex items-center space-x-2">
                     <img
@@ -47,21 +43,17 @@ const Header = () => {
                 </Link>
 
                 {/* Search Bar */}
-                <div className="flex-1 mx-4 max-w-md hidden md:flex">
-                    {/* Search Bar */}
-                    {userInfo && (
-                        <div className="flex-1 mx-4 max-w-md hidden md:flex">
-                            <input
-                                type="text"
-                                placeholder="Search notes..."
-                                className="w-full px-4 py-2 text-gray-900 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                            />
-                        </div>
-                    )}
-
-                </div>
+                {userInfo && (
+                    <div className="flex-1 mx-4 max-w-md hidden md:flex">
+                        <input
+                            type="text"
+                            placeholder="Search notes..."
+                            className="w-full px-4 py-2 text-gray-900 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                        />
+                    </div>
+                )}
 
                 {/* Right Side */}
                 <div className="flex items-center space-x-4">
@@ -118,7 +110,7 @@ const Header = () => {
                             </Link>
                             <Link
                                 to="/signup"
-                                className="hidden md:inline-block px-4 py-2 text-sm bg-blue-600 rounded hover:bg-blue-700 transition-all duration-200"
+                                className="hidden md:inline-block px-4 py-2 text-sm bg-primary rounded hover:bg-primary transition-all duration-200"
                             >
                                 Sign Up
                             </Link>

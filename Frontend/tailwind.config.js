@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: '#1D4ED8',
+      },
       animation: {
         blob: "blob 7s infinite",
         'gradient-slow': 'gradient 15s ease infinite',
