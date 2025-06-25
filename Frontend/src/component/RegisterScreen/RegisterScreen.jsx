@@ -58,7 +58,7 @@ const RegisterScreen = () => {
             <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6"
+                    className="w-full max-w-xl bg-white p-8 rounded-2xl shadow-lg space-y-6"
                 >
                     <h2 className="text-2xl font-semibold text-center text-gray-800">Register</h2>
 
