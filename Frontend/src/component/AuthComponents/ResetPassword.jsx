@@ -28,7 +28,7 @@ const ResetPassword = () => {
     // Submit email
     const onSubmitEmail = async (data) => {
         try {
-            const response = await axios.post("http://localhost:5000/api/users/reset-password/request", { email: data.email });
+            const response = await axios.post("/api/users/reset-password/request", { email: data.email });
 
             if (response.data.success) {
                 toast.success(response.data.message);
@@ -80,7 +80,7 @@ const ResetPassword = () => {
     // Submit new password
     const onSubmitNewPassword = async (data) => {
         try {
-            const response = await axios.post("http://localhost:5000/api/users/reset-password", {
+            const response = await axios.post("/api/users/reset-password", {
                 email,
                 otp: otp.join(''),
                 newPassword: data.password,
