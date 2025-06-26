@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { resendOtp } from '../../utils/OtpAction';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { verifyAccount } from '../../utils/VerifyAccountaction';
+import { resendOtp, verifyAccount } from '../../utils/userAction';
 
 const OTPcomponent = () => {
     const dispatch = useDispatch();
@@ -13,23 +12,25 @@ const OTPcomponent = () => {
 
     const [otp, setOtp] = useState(new Array(6).fill(''));
     const inputRefs = useRef([]);
-    const { loading, error, success } = useSelector((state) => state.userVerify);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { loading: resendLoading, error: resendError, success: resendSuccess, message } = useSelector((state) => state.userResendOtp);
+    const { loading, error, success } = useSelector((state) => state.userVerify);
+    const { loading: resendLoading, error: resendError, success: resendSuccess, message } =
+        useSelector((state) => state.userResendOtp);
 
     useEffect(() => {
         if (success) {
-            toast.success("Email verified successfully!");
-            navigate("/login");
+            toast.success('Email verified successfully!');
+            navigate('/login');
         }
         if (error) {
             toast.error(error);
         }
     }, [success, error, navigate]);
+
     useEffect(() => {
         if (resendSuccess) {
-            toast.success(message || "OTP resent successfully!");
+            toast.success(message || 'OTP resent successfully!');
         }
         if (resendError) {
             toast.error(resendError);
@@ -56,37 +57,30 @@ const OTPcomponent = () => {
         setOtp(newOtp);
     };
 
-
     const handleResend = () => {
-        if (!userId) {
-            return toast.error("User ID missing");
-        }
+        if (!userId) return toast.error('User ID missing');
         dispatch(resendOtp(userId));
-        toast.info("OTP resent to your email");
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (otp.some(digit => digit === '')) {
-            return toast.error("Please enter all 6 digits");
+        if (otp.some((digit) => digit === '')) {
+            return toast.error('Please enter all 6 digits');
         }
-
-        try {
-            setIsSubmitting(true);
-            await dispatch(verifyAccount(otp.join(''))).unwrap();
-
-        } catch (error) {
-
-            console.error("Verification error:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+        setIsSubmitting(true);
+        await dispatch(verifyAccount(otp.join(''), userId));
+        setIsSubmitting(false);
     };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-400">
-            <form onSubmit={handleSubmit} className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm">
-                <h1 className="text-white text-2xl font-semibold text-center mb-4">Email Verify OTP</h1>
+            <form
+                onSubmit={handleSubmit}
+                className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
+            >
+                <h1 className="text-white text-2xl font-semibold text-center mb-4">
+                    Email Verify OTP
+                </h1>
                 <p className="text-center mb-6 text-indigo-300">
                     Enter the 6-digit code sent to your email ID.
                 </p>
@@ -108,9 +102,10 @@ const OTPcomponent = () => {
 
                 <button
                     type="submit"
+                    disabled={loading || isSubmitting}
                     className="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"
                 >
-                    {loading ? 'Verifying...' : 'Verify'}
+                    {loading || isSubmitting ? 'Verifying...' : 'Verify'}
                 </button>
 
                 <button
@@ -121,7 +116,6 @@ const OTPcomponent = () => {
                 >
                     {resendLoading ? 'Resending...' : 'Resend OTP'}
                 </button>
-
             </form>
         </div>
     );

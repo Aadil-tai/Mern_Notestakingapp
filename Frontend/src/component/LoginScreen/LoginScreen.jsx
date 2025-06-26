@@ -58,7 +58,7 @@ const LoginScreen = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+        <div className="min-h-screen bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center bg-gray-100 px-4">
             <div className="bg-white rounded-2xl shadow-lg max-w-5xl w-full grid md:grid-cols-2 overflow-hidden">
 
                 {/* Form Section */}

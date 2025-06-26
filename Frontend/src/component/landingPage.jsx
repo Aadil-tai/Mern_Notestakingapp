@@ -24,7 +24,7 @@ const LandingPage = () => {
                         Get Started
                     </button>
                 </Link>
-                <Link to="/signup">
+                <Link to="/features">
                     <button className="px-6 py-3 border border-gray-400 hover:border-white rounded-lg font-semibold transition">
                         Learn More
                     </button>

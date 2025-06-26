@@ -1,6 +1,6 @@
 import { NOTES_LIST_RESET, NOTES_UPDATE_FAIL } from "../constants/NoteConstants";
 import { SEND_OTP_FAIL, SEND_OTP_REQUEST, SEND_OTP_SUCCESS } from "../constants/OtpConstants";
-import { USER_LOGIN_FAIL, USER_LOGIN_REQUEST, USER_LOGIN_SUCCESS, USER_REGISTER_FAIL, USER_REGISTER_REQUEST, USER_REGISTER_SUCCESS, USER_UPDATE_FAIL, USER_UPDATE_REQUEST, USER_UPDATE_SUCCESS } from "../constants/userConstants";
+import { USER_LOGIN_FAIL, USER_LOGIN_REQUEST, USER_LOGIN_SUCCESS, USER_REGISTER_FAIL, USER_REGISTER_REQUEST, USER_REGISTER_SUCCESS, USER_UPDATE_FAIL, USER_UPDATE_REQUEST, USER_UPDATE_SUCCESS, USER_VERIFY_FAIL, USER_VERIFY_REQUEST, USER_VERIFY_SUCCESS } from "../constants/userConstants";
 import axios from 'axios';
 export const logout = () => (dispatch) => {
     localStorage.removeItem('userInfo');
@@ -15,46 +15,54 @@ export const registerUser = (formData) => async (dispatch) => {
 
         const config = {
             headers: {
-                "Content-Type": "multipart/form-data",
+                'Content-Type': 'multipart/form-data',
             },
             withCredentials: true,
         };
 
-        const { data } = await axios.post("/api/users", formData, config);
+        const { data } = await axios.post('/api/users', formData, config);
+
         dispatch({
             type: USER_REGISTER_SUCCESS,
             payload: data,
         });
+
+        // ✅ Extract userId safely
+        const userId = data?._id;
+
+        if (!userId) {
+            throw new Error('User ID missing after registration.');
+        }
+
         // ✅ Send OTP after registration
         dispatch({ type: SEND_OTP_REQUEST });
 
-        const otpRes = await axios.post('/api/users/send-verify-otp', {
-            userId: data._id,
-        },
-            {
-                withCredentials: true,
-            });
-        dispatch({ type: SEND_OTP_SUCCESS, payload: otpRes.data.message });
+        const otpRes = await axios.post(
+            '/api/users/send-verify-otp',
+            { userId },
+            { withCredentials: true }
+        );
 
+        const otpMessage = otpRes?.data?.message || 'OTP sent';
 
-        // ✅ 3. Let frontend redirect to OTP screen manually
-        return data._id;
+        dispatch({ type: SEND_OTP_SUCCESS, payload: otpMessage });
 
-
+        return userId;
     } catch (error) {
-        const message = error.response?.data?.message || 'Something went wrong';
+        const message = error.response?.data?.message || 'Registration or OTP failed';
 
         dispatch({
             type: USER_REGISTER_FAIL,
-            payload:
-                error.response?.data?.message ||
-                "Registration failed. Please try again.",
+            payload: message,
         });
 
         dispatch({
             type: SEND_OTP_FAIL,
             payload: message,
         });
+
+        console.error('❌ Registration Error:', error); // helpful for debugging
+
         throw new Error(message);
     }
 };
@@ -138,5 +146,48 @@ export const updateProfile = (userData) => async (dispatch, getState) => {
 
         // Throw error for .unwrap() to catch
         throw new Error(errorMessage);
+    }
+};
+
+export const verifyAccount = (otp, userId) => async (dispatch) => {
+    try {
+        dispatch({ type: USER_VERIFY_REQUEST });
+
+        const config = {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+        };
+
+        const { data } = await axios.post('/api/users/verify-account', { otp, userId }, config);
+
+        dispatch({ type: USER_VERIFY_SUCCESS, payload: data.message });
+    } catch (error) {
+        console.error('❌ OTP Verification Error:', error); // 👈 Add this
+        dispatch({
+            type: USER_VERIFY_FAIL,
+            payload: error.response?.data?.message || 'OTP verification failed',
+        });
+    }
+};
+
+// actions/OtpAction.js
+
+
+export const resendOtp = (userId) => async (dispatch) => {
+    try {
+        dispatch({ type: SEND_OTP_REQUEST });
+
+        const { data } = await axios.post(
+            '/api/users/send-verify-otp',
+            { userId },
+            { withCredentials: true }
+        );
+
+        dispatch({ type: SEND_OTP_SUCCESS, payload: data.message });
+    } catch (error) {
+        dispatch({
+            type: SEND_OTP_FAIL,
+            payload: error.response?.data?.message || 'Resending OTP failed',
+        });
     }
 };

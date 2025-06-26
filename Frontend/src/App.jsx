@@ -11,6 +11,7 @@ import ProfilePage from './component/ProfilePage';
 import { ToastContainer } from 'react-toastify';
 import OTPcomponent from './component/AuthComponents/OTPcomponent';
 import ResetPassword from './component/AuthComponents/resetPassword';
+import Features from './component/Features';
 
 
 const App = () => {
@@ -23,6 +24,7 @@ const App = () => {
         <ToastContainer />
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/features" element={<Features />} />
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/signup" element={<RegisterScreen />} />
           <Route path="/mynotes" element={<Mynotes />} />
